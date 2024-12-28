@@ -20,7 +20,7 @@ substitutions:
   voice_assist_thinking_phase_id: '3'
   voice_assist_replying_phase_id: '4'
   voice_assist_not_ready_phase_id: '10'
-  voice_assist_error_phase_id: '11'  
+  voice_assist_error_phase_id: '11'
   voice_assist_muted_phase_id: '12'
 
 esphome:
@@ -36,7 +36,7 @@ esphome:
     - m5stack/M5Unified@^0.1.11
   on_boot:
       priority: 600
-      then: 
+      then:
         - script.execute: draw_display
         - delay: 30s
         - if:
@@ -59,7 +59,7 @@ psram:
 external_components:
   - source:
       type: git
-      url: https://github.com/m5stack/M5CoreS3-Esphome
+      url: https://github.com/mvoevodskiy/M5CoreS3-Esphome
     components: [ board_m5cores3, m5cores3_audio, m5cores3_display ]
     refresh: 0s
 
@@ -86,15 +86,15 @@ wifi:
   ap:
   on_connect:
     - script.execute: draw_display
-    - delay: 5s # Gives time for improv results to be transmitted 
+    - delay: 5s # Gives time for improv results to be transmitted
   on_disconnect:
     - script.execute: draw_display
 
 captive_portal:
 
-# 
+#
 # Globals
-# 
+#
 globals:
   - id: init_in_progress
     type: bool
@@ -105,9 +105,9 @@ globals:
     restore_value: no
     initial_value: ${voice_assist_not_ready_phase_id}
 
-# 
+#
 # Display
-# 
+#
 script:
   - id: draw_display
     then:
@@ -260,9 +260,9 @@ display:
         lambda: |-
           it.fill(Color::BLACK);
 
-# 
+#
 # Audio
-# 
+#
 board_m5cores3:
 m5cores3_audio:
   id: m5cores3_audio_1
@@ -283,9 +283,9 @@ speaker:
     i2s_dout_pin: 13
     mode: mono
 
-# 
+#
 # VA
-# 
+#
 voice_assistant:
   id: va
   microphone: m5cores3_mic
@@ -312,7 +312,7 @@ voice_assistant:
         condition:
           lambda: return !id(init_in_progress);
         then:
-          - lambda: id(voice_assistant_phase) = ${voice_assist_error_phase_id};  
+          - lambda: id(voice_assistant_phase) = ${voice_assist_error_phase_id};
           - script.execute: draw_display
           - delay: 1s
           - if:
@@ -323,7 +323,7 @@ voice_assistant:
               else:
                 - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
           - script.execute: draw_display
-  on_client_connected: 
+  on_client_connected:
     - if:
         condition:
           switch.is_off: mute
@@ -332,10 +332,10 @@ voice_assistant:
           - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
         else:
           - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
-    - lambda: id(init_in_progress) = false; 
+    - lambda: id(init_in_progress) = false;
     - script.execute: draw_display
   on_client_disconnected:
-    - lambda: id(voice_assistant_phase) = ${voice_assist_not_ready_phase_id};  
+    - lambda: id(voice_assistant_phase) = ${voice_assist_not_ready_phase_id};
     - script.execute: draw_display
 
 switch:
@@ -359,7 +359,7 @@ switch:
     - if:
         condition:
           lambda: return !id(init_in_progress);
-        then:      
+        then:
           - lambda: id(va).set_use_wake_word(true);
           - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
           - if:
@@ -373,7 +373,7 @@ switch:
     - if:
         condition:
           lambda: return !id(init_in_progress);
-        then:      
+        then:
           - voice_assistant.stop
           - lambda: id(va).set_use_wake_word(false);
           - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
